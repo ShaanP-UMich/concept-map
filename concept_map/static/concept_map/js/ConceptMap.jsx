@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
+import CSRFToken from "./CSRFToken";
+import csrftoken from "./CSRFToken";
 
 class ConceptMap extends React.Component {
     constructor(props) {
@@ -7,10 +9,13 @@ class ConceptMap extends React.Component {
 
         this.state = {
             nodeDataArray: {},
-            linkDataArray: {}
+            linkDataArray: {},
+            addNode_value: ""
         };
 
         this.createConceptMap = this.createConceptMap.bind(this);
+        this.handleAddNode = this.handleAddNode.bind(this);
+        this.handleChange = this.handleChange.bind(this);
     }
 
     componentDidMount() {
@@ -27,66 +32,50 @@ class ConceptMap extends React.Component {
                     linkDataArray = data.linkDataArray;
 
                     this.createConceptMap(nodeDataArray, linkDataArray);
-
-
-                    // nodeDataArray: data.nodeDataArray,
-                    // linkDataArray: data.linkDataArray
                 });
             })
             .catch((error) => console.log(error));
-
-
-        // let nodeDataArray = [
-        //     // { key: 1, text: "Concept Maps" },
-        //     // { key: 2, text: "Organized Knowledge" },
-        //     { key: 1, text: "Climate Change" },
-        //     { key: 2, text: "Evidence" },
-        //     { key: 3, text: "Solutions" },
-        //     { key: 4, text: "Causes" },
-        //     { key: 5, text: "human activities" },
-        //     { key: 6, text: "natural environmental changes" },
-        //     { key: 7, text: "change human behavior" },
-        //     { key: 8, text: "reduce burning of fossil fuels" },
-        //     { key: 9, text: "explore renewable energy sources" },
-        //     { key: 10, text: "furthur research" },
-        //     { key: 11, text: "warming oceans" },
-        //     { key: 12, text: "increase in extreme weather" },
-        //     { key: 13, text: "melting glaciers" },
-        // ];
-
-        // let linkDataArray = [
-        //     // { from: 1, to: 2, text: "represent" },
-        //     // { from: 2, to: 3, text: "is" },
-        //     { from: 1, to: 2 },
-        //     { from: 1, to: 4 },
-        //     { from: 1, to: 3 },
-
-        //     { from: 2, to: 11 },
-        //     { from: 2, to: 12 },
-        //     { from: 2, to: 13 },
-
-        //     { from: 4, to: 5 },
-        //     { from: 4, to: 6 },
-
-        //     { from: 3, to: 10 },
-        //     { from: 3, to: 7 },
-        //     { from: 7, to: 8 },
-        //     { from: 7, to: 9 },
-        // ];
     }
 
     render() { // Called before componentDidMount
+        let addNode_value = "";
         return (
-            <div id="allSampleContent" className="p-4 w-full">
-                <div id="myDiagramDiv">
-                    <canvas tabIndex="0">This
-                        text is displayed if your browser does not support the Canvas HTML element.</canvas>
-                    <div id="under-canvas-1">
-                        <div id="under-canvas-2"></div>
+            <div>
+                <div id="allSampleContent" className="p-4 w-full">
+                    <div id="myDiagramDiv">
+                        <canvas tabIndex="0">This
+                            text is displayed if your browser does not support the Canvas HTML element.</canvas>
+                        <div id="under-canvas-1">
+                            <div id="under-canvas-2"></div>
+                        </div>
                     </div>
                 </div>
-            </div >
+
+                <form onSubmit={this.handleAddNode}>
+                    <input
+                        type="text"
+                        // value={addNode_value}
+                        placeholder="Node Text"
+                        onChange={this.handleChange} />
+                </form>
+
+                {/* <form action="/concept_map/node/add/" method="post" id="add_node_form">
+                    <CSRFToken />
+                    <label htmlFor="node_text">Add Node:</label>
+                    <input type="text" id="node_text" name="node_text" placeholder="text" />
+                </form>
+                <button type="submit" form="add_node_form" value="Submit">Add Node</button> */}
+            </div>
         );
+    }
+
+    handleChange(event) {
+
+    }
+
+    handleAddNode(event) {
+        event.preventDefault()
+        // console.log(event.target[0].value); // this is the node_text
     }
 
     createConceptMap(nodeDataArray, linkDataArray) {

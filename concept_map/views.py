@@ -42,12 +42,20 @@ def get_nodes(request):
 
 
 def add_node(request):
-    return HttpResponse("TODO: add a new node")
+    """'node/add/' route."""
+
+    node_text = request.POST['node_text']
+
+    
+
+    return HttpResponse(f"TODO: add a new node {node_text}")
 
 
 def delete_node(request):
+    """'node/delete/' route."""
     return HttpResponse("TODO: delete a node")
 
 
 def add_relationship(request):
+    """'node/relate/' route."""
     return HttpResponse("TODO: add a relationship between two nodes")

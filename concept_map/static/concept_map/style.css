@@ -31,3 +31,7 @@
     width: 1054px;
     height: 1px;
 }
+
+form label {
+    margin-right: 7px;
+}
