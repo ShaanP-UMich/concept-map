@@ -5,52 +5,77 @@ class ConceptMap extends React.Component {
     constructor(props) {
         super(props);
 
+        this.state = {
+            nodeDataArray: {},
+            linkDataArray: {}
+        };
+
         this.createConceptMap = this.createConceptMap.bind(this);
     }
 
     componentDidMount() {
-        let nodeDataArray = [
-            // { key: 1, text: "Concept Maps" },
-            // { key: 2, text: "Organized Knowledge" },
-            { key: 1, text: "Climate Change" },
-            { key: 2, text: "Evidence" },
-            { key: 3, text: "Solutions" },
-            { key: 4, text: "Causes" },
-            { key: 5, text: "human activities" },
-            { key: 6, text: "natural environmental changes" },
-            { key: 7, text: "change human behavior" },
-            { key: 8, text: "reduce burning of fossil fuels" },
-            { key: 9, text: "explore renewable energy sources" },
-            { key: 10, text: "furthur research" },
-            { key: 11, text: "warming oceans" },
-            { key: 12, text: "increase in extreme weather" },
-            { key: 13, text: "melting glaciers" },
-        ];
+        fetch('/concept_map/node/', { credentials: "same-origin" })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            })
+            .then((data) => {
+                this.setState((prevState) => {
+                    let { nodeDataArray, linkDataArray } = prevState;
 
-        let linkDataArray = [
-            // { from: 1, to: 2, text: "represent" },
-            // { from: 2, to: 3, text: "is" },
-            { from: 1, to: 2 },
-            { from: 1, to: 4 },
-            { from: 1, to: 3 },
+                    nodeDataArray = data.nodeDataArray;
+                    linkDataArray = data.linkDataArray;
 
-            { from: 2, to: 11 },
-            { from: 2, to: 12 },
-            { from: 2, to: 13 },
+                    this.createConceptMap(nodeDataArray, linkDataArray);
 
-            { from: 4, to: 5 },
-            { from: 4, to: 6 },
 
-            { from: 3, to: 10 },
-            { from: 3, to: 7 },
-            { from: 7, to: 8 },
-            { from: 7, to: 9 },
-        ];
+                    // nodeDataArray: data.nodeDataArray,
+                    // linkDataArray: data.linkDataArray
+                });
+            })
+            .catch((error) => console.log(error));
 
-        this.createConceptMap(nodeDataArray, linkDataArray);
+
+        // let nodeDataArray = [
+        //     // { key: 1, text: "Concept Maps" },
+        //     // { key: 2, text: "Organized Knowledge" },
+        //     { key: 1, text: "Climate Change" },
+        //     { key: 2, text: "Evidence" },
+        //     { key: 3, text: "Solutions" },
+        //     { key: 4, text: "Causes" },
+        //     { key: 5, text: "human activities" },
+        //     { key: 6, text: "natural environmental changes" },
+        //     { key: 7, text: "change human behavior" },
+        //     { key: 8, text: "reduce burning of fossil fuels" },
+        //     { key: 9, text: "explore renewable energy sources" },
+        //     { key: 10, text: "furthur research" },
+        //     { key: 11, text: "warming oceans" },
+        //     { key: 12, text: "increase in extreme weather" },
+        //     { key: 13, text: "melting glaciers" },
+        // ];
+
+        // let linkDataArray = [
+        //     // { from: 1, to: 2, text: "represent" },
+        //     // { from: 2, to: 3, text: "is" },
+        //     { from: 1, to: 2 },
+        //     { from: 1, to: 4 },
+        //     { from: 1, to: 3 },
+
+        //     { from: 2, to: 11 },
+        //     { from: 2, to: 12 },
+        //     { from: 2, to: 13 },
+
+        //     { from: 4, to: 5 },
+        //     { from: 4, to: 6 },
+
+        //     { from: 3, to: 10 },
+        //     { from: 3, to: 7 },
+        //     { from: 7, to: 8 },
+        //     { from: 7, to: 9 },
+        // ];
     }
 
-    render() {
+    render() { // Called before componentDidMount
         return (
             <div id="allSampleContent" className="p-4 w-full">
                 <div id="myDiagramDiv">

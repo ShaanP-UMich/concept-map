@@ -9,17 +9,33 @@ import json
 
 
 def index(request):
+    """'/' route."""
     return render(request, 'concept_map/index.html', {})
-
-# node/
 
 
 def get_nodes(request):
+    """'/node' route."""
     nodes = get_list_or_404(Node)
 
-    context = {}
+    context = {
+        "nodeDataArray": [],
+        "linkDataArray": []
+    }
+
+    # { key: 13, text: "melting glaciers" }
+    # { from: 1, to: 2 }
 
     for node in nodes:
-        context[node.id] = node.text
+        context['nodeDataArray'].append({"key": node.id, "text": node.text})
+
+        print(node.connections.all())
+
+        for connection in node.connections.all():
+            context['linkDataArray'].append(
+                {
+                    "from": node.id,
+                    "to": connection.id
+                }
+            )
 
     return JsonResponse(context)
