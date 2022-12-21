@@ -39,3 +39,15 @@ def get_nodes(request):
         )
 
     return JsonResponse(context)
+
+
+def add_node(request):
+    return HttpResponse("TODO: add a new node")
+
+
+def delete_node(request):
+    return HttpResponse("TODO: delete a node")
+
+
+def add_relationship(request):
+    return HttpResponse("TODO: add a relationship between two nodes")
