@@ -78,4 +78,11 @@ def delete_node(request):
 
 def add_relationship(request):
     """'node/relate/' route."""
+
     return HttpResponse("TODO: add a relationship between two nodes")
+
+
+def remove_relationship(request):
+    """'node/unrelate/' route."""
+
+    return HttpResponse("TODO: remove a relationship between two nodes")

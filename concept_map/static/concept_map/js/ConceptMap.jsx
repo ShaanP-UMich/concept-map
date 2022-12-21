@@ -160,7 +160,7 @@ class ConceptMap extends React.Component {
                                 </select>
                                 <input type="submit" />
                             </form>
-                        </div >
+                        </div>
                     );
 
                     return { nodeDataArray, linkDataArray, node_interactables };
