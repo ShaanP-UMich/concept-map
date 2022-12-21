@@ -11,7 +11,7 @@ class ConceptMap extends React.Component {
             csrftoken: this.getCookie('csrftoken'),
             node_interactables: (<div></div>),
             addNode_value: "",
-            deleteNode_value: "",
+            deleteNode_value: 1,
             myDiagram: ""
         };
 
@@ -66,7 +66,7 @@ class ConceptMap extends React.Component {
 
     handleAddNode(event) {
         // console.log(event.target[0].value); // this is the node_text from the form (old)
-
+        event.preventDefault();
         const { addNode_value, csrftoken } = this.state;
         const payload = { node_text: addNode_value }
         // console.log(addNode_value);
@@ -81,7 +81,17 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
+        }).then((data) => {
+            this.updateConceptMap(data.nodeDataArray, data.linkDataArray);
+            this.setState({
+                nodeDataArray: data.nodeDataArray,
+                linkDataArray: data.linkDataArray
+            })
         }).catch((error) => console.log(error));
+
+        console.log("the event.target.value:");
+        console.log(event.target.children);
+        event.target.children[1].value = "";
 
         this.setState({ addNode_value: "" });
     }
@@ -89,12 +99,27 @@ class ConceptMap extends React.Component {
     handleDeleteNode(event) {
         event.preventDefault();
 
-        const { deleteNode_value } = this.state;
-
+        const { deleteNode_value, csrftoken } = this.state;
         console.log(deleteNode_value);
+
+        const payload = { node: deleteNode_value };
+
+        fetch('/concept_map/node/delete/', {
+            credentials: 'include',
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+        }).then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        }).catch((error) => console.log(error));
+
+        this.setState({ deleteNode_value: "" });
     }
 
     handleDeleteNodeChange(event) {
+        // console.log(event.target.value);
         this.setState({ deleteNode_value: event.target.value });
     }
 
@@ -106,7 +131,8 @@ class ConceptMap extends React.Component {
             })
             .then((data) => {
                 this.setState((prevState) => {
-                    let { nodeDataArray, linkDataArray, node_interactables, addNode_value } = prevState;
+                    let { nodeDataArray, linkDataArray, node_interactables, addNode_value,
+                        deleteNode_value } = prevState;
                     // console.log("this inner setState is running");
 
                     nodeDataArray = data.nodeDataArray;
@@ -126,7 +152,7 @@ class ConceptMap extends React.Component {
                                 <label htmlFor="node_text">Add Node:</label>
                                 <input
                                     type="text"
-                                    value={addNode_value}
+                                    // value={addNode_value}
                                     id="node_text"
                                     placeholder="Node Text"
                                     onChange={this.handleAddNodeChange} />
@@ -139,7 +165,7 @@ class ConceptMap extends React.Component {
                                 </select>
                                 <input type="submit" />
                             </form>
-                        </div>
+                        </div >
                     );
 
                     return { nodeDataArray, linkDataArray, node_interactables };
