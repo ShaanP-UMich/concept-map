@@ -1,0 +1,33 @@
+#myDiagramDiv {
+    background-color: whitesmoke;
+    border: 1px solid black;
+    width: 100%;
+    height: 700px;
+    position: relative;
+    -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+
+#myDiagramDiv canvas {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 2;
+    user-select: none;
+    touch-action: none;
+    width: 1035px;
+    height: 681px;
+}
+
+#under-canvas-1 {
+    position: absolute;
+    overflow: auto;
+    width: 1035px;
+    height: 698px;
+    z-index: 1;
+}
+
+#under-canvas-2 {
+    position: absolute;
+    width: 1054px;
+    height: 1px;
+}

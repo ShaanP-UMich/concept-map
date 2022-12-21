@@ -89,4 +89,4 @@ function init() {
     ];
     myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
 }
-window.addEventListener('DOMContentLoaded', init);
+// window.addEventListener('DOMContentLoaded', init);

@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-// import Feed from "./feed";
+import ConceptMap from "./ConceptMap";
 
 // Create a root
 const root = createRoot(document.getElementById("reactEntry"));
@@ -8,4 +8,4 @@ const root = createRoot(document.getElementById("reactEntry"));
 // Insert the post component into the DOM
 
 // root.render(<Feed url="/api/v1/posts/" />);
-root.render(<h1>React Rendered</h1>);
+root.render(<ConceptMap />);
