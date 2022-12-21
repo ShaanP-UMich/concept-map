@@ -5,7 +5,14 @@ from django.db import models
 
 class Node(models.Model):
     text = models.CharField(max_length=256, default="")
-    connections = models.ManyToManyField("self", blank=True)
+    # connections = models.ManyToManyField("self", blank=True)
 
     def __str__(self):
         return self.text
+
+
+class Relationship(models.Model):
+    from_node = models.ForeignKey(
+        Node, null=False, related_name='from_node', on_delete=models.CASCADE)
+    to_node = models.ForeignKey(
+        Node, null=False, related_name='to_node', on_delete=models.CASCADE)

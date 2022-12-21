@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from django.http import HttpResponse, Http404, JsonResponse
 
-from .models import Node
+from .models import Node, Relationship
 
 import json
 
@@ -16,6 +16,7 @@ def index(request):
 def get_nodes(request):
     """'/node' route."""
     nodes = get_list_or_404(Node)
+    relationships = get_list_or_404(Relationship)
 
     context = {
         "nodeDataArray": [],
@@ -28,14 +29,13 @@ def get_nodes(request):
     for node in nodes:
         context['nodeDataArray'].append({"key": node.id, "text": node.text})
 
-        print(node.connections.all())
-
-        for connection in node.connections.all():
-            context['linkDataArray'].append(
-                {
-                    "from": node.id,
-                    "to": connection.id
-                }
-            )
+    for relationship in relationships:
+        # print(str(relationship.from_node) + str(relationship.to_node))
+        context['linkDataArray'].append(
+            {
+                "from": relationship.from_node.id,
+                "to": relationship.to_node.id
+            }
+        )
 
     return JsonResponse(context)
