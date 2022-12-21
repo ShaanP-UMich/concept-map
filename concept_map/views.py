@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404
-from django.http import HttpResponse, Http404, JsonResponse
+from django.http import HttpResponse, Http404, JsonResponse, HttpRequest
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 from .models import Node, Relationship
 
@@ -40,15 +41,20 @@ def get_nodes(request):
 
     return JsonResponse(context)
 
-
 def add_node(request):
     """'node/add/' route."""
 
-    node_text = request.POST['node_text']
+    post_data = json.loads(request.body.decode('utf-8'))
+    print(post_data)
 
-    
+    node_text = post_data['node_text']
+    # node_text = "filler"
+    context = {}
 
-    return HttpResponse(f"TODO: add a new node {node_text}")
+    context['node_text'] = node_text
+
+    # return HttpResponse(f"TODO: add a new node {node_text}")
+    return JsonResponse(context)
 
 
 def delete_node(request):

@@ -1,7 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import CSRFToken from "./CSRFToken";
-import csrftoken from "./CSRFToken";
 
 class ConceptMap extends React.Component {
     constructor(props) {
@@ -10,10 +8,12 @@ class ConceptMap extends React.Component {
         this.state = {
             nodeDataArray: {},
             linkDataArray: {},
+            csrftoken: this.getCookie('csrftoken'),
             addNode_value: ""
         };
 
         this.createConceptMap = this.createConceptMap.bind(this);
+        this.getCookie = this.getCookie.bind(this);
         this.handleAddNode = this.handleAddNode.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
@@ -38,7 +38,7 @@ class ConceptMap extends React.Component {
     }
 
     render() { // Called before componentDidMount
-        let addNode_value = "";
+        const { addNode_value } = this.state;
         return (
             <div>
                 <div id="allSampleContent" className="p-4 w-full">
@@ -52,9 +52,11 @@ class ConceptMap extends React.Component {
                 </div>
 
                 <form onSubmit={this.handleAddNode}>
+                    <label htmlFor="node_text">Add Node:</label>
                     <input
                         type="text"
-                        // value={addNode_value}
+                        value={addNode_value}
+                        id="node_text"
                         placeholder="Node Text"
                         onChange={this.handleChange} />
                 </form>
@@ -70,12 +72,32 @@ class ConceptMap extends React.Component {
     }
 
     handleChange(event) {
-
+        this.setState({ addNode_value: event.target.value });
     }
 
     handleAddNode(event) {
         event.preventDefault()
-        // console.log(event.target[0].value); // this is the node_text
+        // console.log(event.target[0].value); // this is the node_text from the form
+
+        const { addNode_value, csrftoken } = this.state;
+        const payload = { node_text: addNode_value }
+        console.log(addNode_value);
+        console.log(csrftoken);
+
+        fetch('/concept_map/node/add/', {
+            credentials: 'include',
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+        }).then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        }).then((data) => {
+            console.log("got back" + data.node_text);
+        }).catch((error) => console.log(error));
+
+        this.setState({ addNode_value: "" });
     }
 
     createConceptMap(nodeDataArray, linkDataArray) {
@@ -130,6 +152,22 @@ class ConceptMap extends React.Component {
             );
 
         myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+    }
+
+    getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 }
 
