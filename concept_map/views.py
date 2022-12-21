@@ -68,11 +68,12 @@ def delete_node(request):
     post_data = json.loads(request.body.decode('utf-8'))
 
     selected_node = post_data['node']
-
     print(selected_node)
 
+    victim = Node.objects.get(pk=selected_node)
+    victim.delete()
+
     return get_nodes(request)
-    # return HttpResponse("TODO: delete a node")
 
 
 def add_relationship(request):

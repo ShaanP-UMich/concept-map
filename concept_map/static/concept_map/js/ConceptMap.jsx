@@ -82,17 +82,10 @@ class ConceptMap extends React.Component {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
         }).then((data) => {
-            this.updateConceptMap(data.nodeDataArray, data.linkDataArray);
-            this.setState({
-                nodeDataArray: data.nodeDataArray,
-                linkDataArray: data.linkDataArray
-            })
+            this.fetchNodes();
         }).catch((error) => console.log(error));
 
-        console.log("the event.target.value:");
-        console.log(event.target.children);
         event.target.children[1].value = "";
-
         this.setState({ addNode_value: "" });
     }
 
@@ -113,9 +106,12 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
+        }).then((data) => {
+            this.fetchNodes();
         }).catch((error) => console.log(error));
 
-        this.setState({ deleteNode_value: "" });
+        event.target.children[1].value = 1;
+        this.setState({ deleteNode_value: 1 });
     }
 
     handleDeleteNodeChange(event) {
@@ -152,7 +148,6 @@ class ConceptMap extends React.Component {
                                 <label htmlFor="node_text">Add Node:</label>
                                 <input
                                     type="text"
-                                    // value={addNode_value}
                                     id="node_text"
                                     placeholder="Node Text"
                                     onChange={this.handleAddNodeChange} />
