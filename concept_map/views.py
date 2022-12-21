@@ -41,20 +41,24 @@ def get_nodes(request):
 
     return JsonResponse(context)
 
+
 def add_node(request):
     """'node/add/' route."""
-
-    post_data = json.loads(request.body.decode('utf-8'))
-    print(post_data)
-
-    node_text = post_data['node_text']
-    # node_text = "filler"
     context = {}
 
-    context['node_text'] = node_text
+    post_data = json.loads(request.body.decode('utf-8'))
+    # print(post_data)
+
+    node_text = post_data['node_text']
+
+    new_node = Node(text=node_text)
+    new_node.save()
+
+    context[new_node.id] = new_node.text
 
     # return HttpResponse(f"TODO: add a new node {node_text}")
-    return JsonResponse(context)
+    return get_nodes(request)
+    # return HttpResponse(status=200)
 
 
 def delete_node(request):

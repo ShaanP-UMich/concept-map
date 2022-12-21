@@ -9,36 +9,40 @@ class ConceptMap extends React.Component {
             nodeDataArray: {},
             linkDataArray: {},
             csrftoken: this.getCookie('csrftoken'),
-            addNode_value: ""
+            node_interactables: (<div></div>),
+            addNode_value: "",
+            deleteNode_value: "",
+            myDiagram: ""
         };
 
+        this.fetchNodes = this.fetchNodes.bind(this);
         this.createConceptMap = this.createConceptMap.bind(this);
         this.getCookie = this.getCookie.bind(this);
         this.handleAddNode = this.handleAddNode.bind(this);
-        this.handleChange = this.handleChange.bind(this);
+        this.handleAddNodeChange = this.handleAddNodeChange.bind(this);
+        this.handleDeleteNode = this.handleDeleteNode.bind(this);
+        this.handleDeleteNodeChange = this.handleDeleteNodeChange.bind(this);
+
+        this.updateConceptMap = this.updateConceptMap.bind(this);
     }
 
     componentDidMount() {
-        fetch('/concept_map/node/', { credentials: "same-origin" })
-            .then((response) => {
-                if (!response.ok) throw Error(response.statusText);
-                return response.json();
-            })
-            .then((data) => {
-                this.setState((prevState) => {
-                    let { nodeDataArray, linkDataArray } = prevState;
+        console.log("componentDidMount is being called");
 
-                    nodeDataArray = data.nodeDataArray;
-                    linkDataArray = data.linkDataArray;
+        this.setState({
+            myDiagram: this.createConceptMap([], [])
+        });
 
-                    this.createConceptMap(nodeDataArray, linkDataArray);
-                });
-            })
-            .catch((error) => console.log(error));
+        this.fetchNodes();
     }
 
     render() { // Called before componentDidMount
-        const { addNode_value } = this.state;
+        const { nodeDataArray, node_interactables } = this.state;
+        console.log("render is being called");
+
+        // console.log(nodeDataArray);
+        // console.log(node_interactables);
+
         return (
             <div>
                 <div id="allSampleContent" className="p-4 w-full">
@@ -51,38 +55,22 @@ class ConceptMap extends React.Component {
                     </div>
                 </div>
 
-                <form onSubmit={this.handleAddNode}>
-                    <label htmlFor="node_text">Add Node:</label>
-                    <input
-                        type="text"
-                        value={addNode_value}
-                        id="node_text"
-                        placeholder="Node Text"
-                        onChange={this.handleChange} />
-                </form>
-
-                {/* <form action="/concept_map/node/add/" method="post" id="add_node_form">
-                    <CSRFToken />
-                    <label htmlFor="node_text">Add Node:</label>
-                    <input type="text" id="node_text" name="node_text" placeholder="text" />
-                </form>
-                <button type="submit" form="add_node_form" value="Submit">Add Node</button> */}
+                {node_interactables}
             </div>
         );
     }
 
-    handleChange(event) {
+    handleAddNodeChange(event) {
         this.setState({ addNode_value: event.target.value });
     }
 
     handleAddNode(event) {
-        event.preventDefault()
-        // console.log(event.target[0].value); // this is the node_text from the form
+        // console.log(event.target[0].value); // this is the node_text from the form (old)
 
         const { addNode_value, csrftoken } = this.state;
         const payload = { node_text: addNode_value }
-        console.log(addNode_value);
-        console.log(csrftoken);
+        // console.log(addNode_value);
+        // console.log(csrftoken);
 
         fetch('/concept_map/node/add/', {
             credentials: 'include',
@@ -93,14 +81,75 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
-        }).then((data) => {
-            console.log("got back" + data.node_text);
         }).catch((error) => console.log(error));
 
         this.setState({ addNode_value: "" });
     }
 
+    handleDeleteNode(event) {
+        event.preventDefault();
+
+        const { deleteNode_value } = this.state;
+
+        console.log(deleteNode_value);
+    }
+
+    handleDeleteNodeChange(event) {
+        this.setState({ deleteNode_value: event.target.value });
+    }
+
+    fetchNodes() {
+        fetch('/concept_map/node/', { credentials: "same-origin" })
+            .then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            })
+            .then((data) => {
+                this.setState((prevState) => {
+                    let { nodeDataArray, linkDataArray, node_interactables, addNode_value } = prevState;
+                    // console.log("this inner setState is running");
+
+                    nodeDataArray = data.nodeDataArray;
+                    linkDataArray = data.linkDataArray;
+
+                    // linkDataArray.push({ from: 31, to: 32 });
+
+                    this.updateConceptMap(nodeDataArray, linkDataArray);
+
+                    const nodeOptions = nodeDataArray.map((node) => (
+                        <option key={node.key} value={node.key}>{node.text}</option>
+                    ));
+
+                    node_interactables = (
+                        <div>
+                            <form onSubmit={this.handleAddNode}>
+                                <label htmlFor="node_text">Add Node:</label>
+                                <input
+                                    type="text"
+                                    value={addNode_value}
+                                    id="node_text"
+                                    placeholder="Node Text"
+                                    onChange={this.handleAddNodeChange} />
+                            </form>
+
+                            <form onSubmit={this.handleDeleteNode}>
+                                <label htmlFor="nodes">Delete a Node:</label>
+                                <select id="nodes" name="nodes" onChange={this.handleDeleteNodeChange}>
+                                    {nodeOptions}
+                                </select>
+                                <input type="submit" />
+                            </form>
+                        </div>
+                    );
+
+                    return { nodeDataArray, linkDataArray, node_interactables };
+                });
+            })
+            .catch((error) => console.log(error));
+    }
+
     createConceptMap(nodeDataArray, linkDataArray) {
+        console.log("createConceptMap is running...");
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
         const $ = go.GraphObject.make;  // for conciseness in defining templates
@@ -121,9 +170,9 @@ class ConceptMap extends React.Component {
                 { locationSpot: go.Spot.Center },
                 // define the node's outer shape, which will surround the TextBlock
                 $(go.Shape, "Rectangle",
-                    { fill: $(go.Brush, "Linear", { 0: "rgb(254, 201, 0)", 1: "rgb(254, 162, 0)" }), stroke: "black" }),
+                    { fill: $(go.Brush, "Linear", { 0: "rgb(210, 247, 247)" }), stroke: "black" }),
                 $(go.TextBlock,
-                    { font: "bold 10pt helvetica, bold arial, sans-serif", margin: 4 },
+                    { font: "bold 18pt helvetica, bold arial, sans-serif", margin: 10 },
                     new go.Binding("text", "text"))
             );
 
@@ -150,6 +199,14 @@ class ConceptMap extends React.Component {
                         new go.Binding("text", "text"))
                 )
             );
+
+        myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
+
+        return myDiagram;
+    }
+
+    updateConceptMap(nodeDataArray, linkDataArray) {
+        const { myDiagram } = this.state;
 
         myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
     }
