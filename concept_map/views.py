@@ -18,6 +18,7 @@ def get_nodes(request):
     """'/node' route."""
     nodes = get_list_or_404(Node)
     relationships = get_list_or_404(Relationship)
+    print("this probably won't print");
 
     context = {
         "nodeDataArray": [],
@@ -27,8 +28,20 @@ def get_nodes(request):
     # { key: 13, text: "melting glaciers" }
     # { from: 1, to: 2 }
 
+    i = 0
     for node in nodes:
-        context['nodeDataArray'].append({"key": node.id, "text": node.text})
+        if i % 2 == 0:
+            context['nodeDataArray'].append({
+                "key": node.id,
+                "text": node.text,
+                "category": ""
+            })
+        else:
+            context['nodeDataArray'].append({
+                "key": node.id,
+                "text": node.text,
+                "category": "Comment"
+            })
 
     for relationship in relationships:
         # print(str(relationship.from_node) + str(relationship.to_node))

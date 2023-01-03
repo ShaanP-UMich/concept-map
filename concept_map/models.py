@@ -16,3 +16,6 @@ class Relationship(models.Model):
         Node, null=False, related_name='from_node', on_delete=models.CASCADE)
     to_node = models.ForeignKey(
         Node, null=False, related_name='to_node', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.from_node.text} to {self.to_node.text}"

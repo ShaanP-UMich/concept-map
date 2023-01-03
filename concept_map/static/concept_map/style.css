@@ -1,4 +1,4 @@
-#myDiagramDiv {
+/* #myDiagramDiv {
     background-color: whitesmoke;
     border: 1px solid black;
     width: 100%;
@@ -16,7 +16,7 @@
     touch-action: none;
     width: 1035px;
     height: 681px;
-}
+} */
 
 #under-canvas-1 {
     position: absolute;
@@ -34,4 +34,22 @@
 
 form label {
     margin-right: 7px;
+}
+
+#myPaletteDiv {
+    width: 100px;
+    margin-right: 2px;
+    background-color: #282c34;
+}
+
+#myDiagramDiv {
+    flex-grow: 1;
+    height: 750px;
+    background-color: #282c34;
+}
+
+#abovePalette {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
 }
