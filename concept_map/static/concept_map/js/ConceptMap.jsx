@@ -184,17 +184,37 @@ class ConceptMap extends React.Component {
         let myDiagram =
             $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
                 {
+                    initialAutoScale: go.Diagram.Uniform,
                     "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
                     "LinkRelinked": showLinkLabel,
                     "undoManager.isEnabled": true,  // enable undo & redo
                     layout:
                         $(go.ForceDirectedLayout,  // automatically spread nodes apart
-                            { maxIterations: 200, defaultSpringLength: 10, defaultElectricalCharge: 100 })
+                            { maxIterations: 200, defaultSpringLength: 10, defaultElectricalCharge: 50 })
                 });
 
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => {
-            console.log("Modified event listener is working");
+            console.log("Just modified the diagram");
+            // console.log(e);
+        });
+
+        myDiagram.addDiagramListener("LinkDrawn", e => {
+            console.log("Just drew a new link");
+            console.log("from:");
+            console.log(e.subject.part.data.from);
+            console.log("to:");
+            console.log(e.subject.part.data.to);
+            // console.log(e);
+        });
+
+        myDiagram.addModelChangedListener(e => {
+            if (e.change === go.ChangedEvent.Remove && e.propertyName === "linkDataArray") {
+                // console.log(e.toString());
+                console.log("Just deleted a link");
+                console.log("from: " + e.oldValue.from);
+                console.log("to: " + e.oldValue.to);
+            }
         });
 
         // helper definitions for node templates

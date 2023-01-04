@@ -16,9 +16,15 @@ def index(request):
 
 def get_nodes(request):
     """'/node' route."""
-    nodes = get_list_or_404(Node)
-    relationships = get_list_or_404(Relationship)
-    print("this probably won't print");
+    try:
+        nodes = get_list_or_404(Node)
+    except Http404:
+        nodes = []
+    
+    try:
+        relationships = get_list_or_404(Relationship)
+    except Http404:
+        relationships = []
 
     context = {
         "nodeDataArray": [],

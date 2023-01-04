@@ -43,9 +43,15 @@ form label {
 }
 
 #myDiagramDiv {
+    overflow: visible;
     flex-grow: 1;
     height: 750px;
     background-color: #282c34;
+}
+
+#myDiagramDiv canvas {
+    /* width: 100%; */
+    /* overflow: visible; */
 }
 
 #abovePalette {
