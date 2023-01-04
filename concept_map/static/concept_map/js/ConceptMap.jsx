@@ -188,6 +188,7 @@ class ConceptMap extends React.Component {
                     "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
                     "LinkRelinked": showLinkLabel,
                     "undoManager.isEnabled": true,  // enable undo & redo
+                    "allowMove": false,
                     layout:
                         $(go.ForceDirectedLayout,  // automatically spread nodes apart
                             { maxIterations: 200, defaultSpringLength: 10, defaultElectricalCharge: 50 })
