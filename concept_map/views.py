@@ -10,17 +10,17 @@ import json
 
 
 def index(request):
-    """'/' route."""
+    """'/' [GET] route."""
     return render(request, 'concept_map/index.html', {})
 
 
 def get_nodes(request):
-    """'/node' route."""
+    """'/node' [GET] route."""
     try:
         nodes = get_list_or_404(Node)
     except Http404:
         nodes = []
-    
+
     try:
         relationships = get_list_or_404(Relationship)
     except Http404:
@@ -63,8 +63,8 @@ def get_nodes(request):
 
 
 def add_node(request):
-    """'node/add/' route."""
-    context = {}
+    """'node/add/' [POST] route."""
+    # context = {}
 
     post_data = json.loads(request.body.decode('utf-8'))
     # print(post_data)
@@ -74,7 +74,7 @@ def add_node(request):
     new_node = Node(text=node_text)
     new_node.save()
 
-    context[new_node.id] = new_node.text
+    # context[new_node.id] = new_node.text
 
     # return HttpResponse(f"TODO: add a new node {node_text}")
     return get_nodes(request)
@@ -82,8 +82,7 @@ def add_node(request):
 
 
 def delete_node(request):
-    """'node/delete/' route."""
-    context = {}
+    """'node/delete/' [POST] route."""
 
     post_data = json.loads(request.body.decode('utf-8'))
 
@@ -97,15 +96,22 @@ def delete_node(request):
 
 
 def add_relationship(request):
-    """'node/relate/' route."""
-    context = {}
+    """'node/relate/' [POST] route."""
 
-    
+    post_data = json.loads(request.body.decode('utf-8'))
+    print(json.dumps(post_data, indent=2))
 
-    return HttpResponse("TODO: add a relationship between two nodes")
+    from_node = Node.objects.get(pk=post_data['from_node'])
+    to_node = Node.objects.get(pk=post_data['to_node'])
+
+    new_relationship = Relationship(from_node=from_node, to_node=to_node)
+    new_relationship.save()
+    print(new_relationship)
+
+    return get_nodes(request)
 
 
 def remove_relationship(request):
-    """'node/unrelate/' route."""
+    """'node/unrelate/' [POST] route."""
 
     return HttpResponse("TODO: remove a relationship between two nodes")

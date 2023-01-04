@@ -22,6 +22,7 @@ class ConceptMap extends React.Component {
         this.handleAddNodeChange = this.handleAddNodeChange.bind(this);
         this.handleDeleteNode = this.handleDeleteNode.bind(this);
         this.handleDeleteNodeChange = this.handleDeleteNodeChange.bind(this);
+        this.handleAddRelationship = this.handleAddRelationship.bind(this);
 
         this.updateConceptMap = this.updateConceptMap.bind(this);
     }
@@ -124,6 +125,28 @@ class ConceptMap extends React.Component {
         this.setState({ deleteNode_value: event.target.value });
     }
 
+    handleAddRelationship(from_n, to_n) {
+        const { csrftoken } = this.state;
+        const payload = { from_node: from_n, to_node: to_n };
+
+        fetch('/concept_map/node/relate/', {
+            credentials: 'include',
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+        }).then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        }).then((data) => {
+            // console.log("returned data from node/relate/");
+            // console.log(data['nodeDataArray']);
+
+            this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
+            // this.fetchNodes();
+        }).catch((error) => console.log(error));
+    }
+
     fetchNodes() {
         fetch('/concept_map/node/', { credentials: "same-origin" })
             .then((response) => {
@@ -185,6 +208,7 @@ class ConceptMap extends React.Component {
             $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
                 {
                     initialAutoScale: go.Diagram.Uniform,
+                    contentAlignment: go.Spot.Top,
                     "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
                     "LinkRelinked": showLinkLabel,
                     "undoManager.isEnabled": true,  // enable undo & redo
@@ -202,10 +226,40 @@ class ConceptMap extends React.Component {
 
         // Triggers when Link is created
         myDiagram.addDiagramListener("LinkDrawn", e => {
+            const { myDiagram } = this.state;
+            let from_node = e.subject.part.data.from;
+            let to_node = e.subject.part.data.to;
             console.log("Just drew a new link");
             console.log("from: " + e.subject.part.data.from);
             console.log("to: " + e.subject.part.data.to);
-            // console.log(e);
+
+            this.handleAddRelationship(from_node, to_node);
+
+            // Get all nodes that the from_node is connected to (DOESN'T WORK)
+            // let found = false;
+            // let found_nodes = new Set();
+            // let from_node_obj = myDiagram.findNodeForKey(from_node);
+            // console.log(from_node_obj.data.text);
+            // let it = from_node_obj.findNodesConnected();
+            // console.log("===================");
+            // while (it.next()) {
+            //     console.log(it.value.data.text);
+            //     if (!(it.value.data.key in found_nodes)) {
+            //         found_nodes.add(it.value.data.key);
+            //     }
+            //     else {
+            //         found = true;
+            //         break;
+            //     }
+            // };
+
+            // if (!found)
+            //     // this.handleAddRelationship(from_node, to_node);
+            //     console.log("not found");
+            // else {
+            //     console.log("Error: Nodes are already connected");
+            //     console.log(e.cancel);
+            // }
         });
 
         myDiagram.addDiagramListener("TextEdited", e => {
@@ -415,8 +469,8 @@ class ConceptMap extends React.Component {
                 $(go.Shape,  // the link path shape
                     { isPanelMain: true, stroke: "gray", strokeWidth: 2 },
                     new go.Binding("stroke", "isSelected", sel => sel ? "dodgerblue" : "gray").ofObject()),
-                $(go.Shape,  // the arrowhead
-                    { toArrow: "standard", strokeWidth: 0, fill: "gray" }),
+                // $(go.Shape,  // the arrowhead
+                //     { toArrow: "standard", strokeWidth: 0, fill: "gray" }),
                 $(go.Panel, "Auto",  // the link label, normally not visible
                     { visible: false, name: "LABEL", segmentIndex: 2, segmentFraction: 0.5 },
                     new go.Binding("visible", "visible").makeTwoWay(),
