@@ -199,6 +199,7 @@ class ConceptMap extends React.Component {
             // console.log(e);
         });
 
+        // Triggers when Link is created
         myDiagram.addDiagramListener("LinkDrawn", e => {
             console.log("Just drew a new link");
             console.log("from:");
@@ -208,6 +209,7 @@ class ConceptMap extends React.Component {
             // console.log(e);
         });
 
+        // Triggers when Link is deleted
         myDiagram.addModelChangedListener(e => {
             if (e.change === go.ChangedEvent.Remove && e.propertyName === "linkDataArray") {
                 // console.log(e.toString());
@@ -437,22 +439,21 @@ class ConceptMap extends React.Component {
         // load();  // load an initial diagram from some JSON text
 
         // initialize the Palette that is on the left side of the page
-        let myPalette =
-            $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
-                {
-                    // Instead of the default animation, use a custom fade-down
-                    "animationManager.initialAnimationStyle": go.AnimationManager.None,
-                    "InitialAnimationStarting": animateFadeDown, // Instead, animate with this function
+        $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
+            {
+                // Instead of the default animation, use a custom fade-down
+                "animationManager.initialAnimationStyle": go.AnimationManager.None,
+                "InitialAnimationStarting": animateFadeDown, // Instead, animate with this function
 
-                    nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
-                    model: new go.GraphLinksModel([  // specify the contents of the Palette
-                        { category: "Start", text: "Start" },
-                        { text: "Step" },
-                        { category: "Conditional", text: "???" },
-                        { category: "End", text: "End" },
-                        { category: "Comment", text: "Comment" }
-                    ])
-                });
+                nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
+                model: new go.GraphLinksModel([  // specify the contents of the Palette
+                    { category: "Start", text: "Start" },
+                    { text: "Step" },
+                    { category: "Conditional", text: "???" },
+                    { category: "End", text: "End" },
+                    { category: "Comment", text: "Comment" }
+                ])
+            });
 
         // This is a re-implementation of the default animation, except it fades in from downwards, instead of upwards.
         function animateFadeDown(e) {

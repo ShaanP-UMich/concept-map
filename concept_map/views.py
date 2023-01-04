@@ -40,14 +40,15 @@ def get_nodes(request):
             context['nodeDataArray'].append({
                 "key": node.id,
                 "text": node.text,
-                "category": ""
+                "category": node.category
             })
         else:
             context['nodeDataArray'].append({
                 "key": node.id,
                 "text": node.text,
-                "category": "Comment"
+                "category": node.category
             })
+        # i += 1
 
     for relationship in relationships:
         # print(str(relationship.from_node) + str(relationship.to_node))
