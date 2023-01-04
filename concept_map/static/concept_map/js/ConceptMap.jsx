@@ -142,7 +142,7 @@ class ConceptMap extends React.Component {
             // console.log("returned data from node/relate/");
             // console.log(data['nodeDataArray']);
 
-            this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
+            // this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
             // this.fetchNodes();
         }).catch((error) => console.log(error));
     }
