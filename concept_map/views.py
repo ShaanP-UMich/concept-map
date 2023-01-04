@@ -98,6 +98,9 @@ def delete_node(request):
 
 def add_relationship(request):
     """'node/relate/' route."""
+    context = {}
+
+    
 
     return HttpResponse("TODO: add a relationship between two nodes")
 

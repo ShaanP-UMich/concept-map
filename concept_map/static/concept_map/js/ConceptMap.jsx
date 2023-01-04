@@ -202,10 +202,17 @@ class ConceptMap extends React.Component {
         // Triggers when Link is created
         myDiagram.addDiagramListener("LinkDrawn", e => {
             console.log("Just drew a new link");
-            console.log("from:");
-            console.log(e.subject.part.data.from);
-            console.log("to:");
-            console.log(e.subject.part.data.to);
+            console.log("from: " + e.subject.part.data.from);
+            console.log("to: " + e.subject.part.data.to);
+            // console.log(e);
+        });
+
+        myDiagram.addDiagramListener("TextEdited", e => {
+            console.log("Just edited an existing link");
+            console.log(e.subject.text); // new text value
+            console.log(e.parameter); // old text value
+            // console.log("from: " + e.subject.part.data.from);
+            // console.log("to: " + e.subject.part.data.to);
             // console.log(e);
         });
 
