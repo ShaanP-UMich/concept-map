@@ -6,7 +6,6 @@ from django.db import models
 class Node(models.Model):
     text = models.CharField(max_length=256, default="")
     category = models.CharField(max_length=50, default="")
-    # connections = models.ManyToManyField("self", blank=True)
 
     def __str__(self):
         return self.text

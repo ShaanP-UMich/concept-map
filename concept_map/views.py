@@ -114,4 +114,7 @@ def add_relationship(request):
 def remove_relationship(request):
     """'node/unrelate/' [POST] route."""
 
+    post_data = json.loads(request.body.decode('utf-8'))
+    print(json.dumps(post_data, indent=2))
+
     return HttpResponse("TODO: remove a relationship between two nodes")

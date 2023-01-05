@@ -23,6 +23,7 @@ class ConceptMap extends React.Component {
         this.handleDeleteNode = this.handleDeleteNode.bind(this);
         this.handleDeleteNodeChange = this.handleDeleteNodeChange.bind(this);
         this.handleAddRelationship = this.handleAddRelationship.bind(this);
+        this.handleRemoveRelationship = this.handleRemoveRelationship.bind(this);
 
         this.updateConceptMap = this.updateConceptMap.bind(this);
     }
@@ -147,6 +148,28 @@ class ConceptMap extends React.Component {
         }).catch((error) => console.log(error));
     }
 
+    handleRemoveRelationship(from_n, to_n) {
+        const { csrftoken } = this.state;
+        const payload = { from_node: from_n, to_node: to_n };
+
+        fetch('/concept_map/node/unrelate/', {
+            credentials: 'include',
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+        }).then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        }).then((data) => {
+            // console.log("returned data from node/relate/");
+            // console.log(data['nodeDataArray']);
+
+            // this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
+            // this.fetchNodes();
+        }).catch((error) => console.log(error));
+    }
+
     fetchNodes() {
         fetch('/concept_map/node/', { credentials: "same-origin" })
             .then((response) => {
@@ -208,14 +231,16 @@ class ConceptMap extends React.Component {
             $(go.Diagram, "myDiagramDiv",  // must name or refer to the DIV HTML element
                 {
                     initialAutoScale: go.Diagram.Uniform,
-                    contentAlignment: go.Spot.Top,
+                    contentAlignment: go.Spot.Center,
                     "LinkDrawn": showLinkLabel,  // this DiagramEvent listener is defined below
                     "LinkRelinked": showLinkLabel,
                     "undoManager.isEnabled": true,  // enable undo & redo
                     "allowMove": false,
                     layout:
-                        $(go.ForceDirectedLayout,  // automatically spread nodes apart
-                            { maxIterations: 200, defaultSpringLength: 10, defaultElectricalCharge: 50 })
+                        // $(go.ForceDirectedLayout,  // automatically spread nodes apart
+                        //     { maxIterations: 200, defaultSpringLength: 30, defaultElectricalCharge: 70 })
+                        $(go.TreeLayout,  // automatically spread nodes apart
+                            { alignment: go.TreeLayout.AlignmentCenterChildren })
                 });
 
         // when the document is modified, add a "*" to the title and enable the "Save" button
@@ -278,6 +303,11 @@ class ConceptMap extends React.Component {
                 console.log("Just deleted a link");
                 console.log("from: " + e.oldValue.from);
                 console.log("to: " + e.oldValue.to);
+
+                let from_node = e.oldValue.from;
+                let to_node = e.oldValue.to;
+
+                this.handleRemoveRelationship(from_node, to_node);
             }
         });
 
@@ -348,6 +378,86 @@ class ConceptMap extends React.Component {
                         {
                             margin: 8,
                             maxSize: new go.Size(160, NaN),
+                            wrap: go.TextBlock.WrapFit,
+                            editable: true
+                        },
+                        new go.Binding("text").makeTwoWay())
+                ),
+                // four named ports, one on each side:
+                makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),
+                makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
+                makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
+                makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, false)
+            ));
+
+        myDiagram.nodeTemplateMap.add("Heading",  // the default category
+            $(go.Node, "Table", nodeStyle(),
+                // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
+                $(go.Panel, "Auto",
+                    $(go.Shape, "Rectangle",
+                        { fill: "#282c34", stroke: "#ddff03", strokeWidth: 3.5 },
+                        new go.Binding("figure", "figure")),
+                    $(go.TextBlock, textStyle(),
+                        {
+                            margin: 8,
+                            maxSize: new go.Size(300, NaN),
+                            wrap: go.TextBlock.WrapFit,
+                            editable: true
+                        },
+                        new go.Binding("text").makeTwoWay())
+                ),
+                // four named ports, one on each side:
+                makePort("T", go.Spot.Top, go.Spot.TopSide, true, true),
+                makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
+                makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
+                makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, true)
+            ));
+
+        go.Shape.defineFigureGenerator("Cloud", function (shape, w, h) {
+            return new go.Geometry()
+                .add(new go.PathFigure(.08034461 * w, .1944299 * h, true)
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .2008615 * w, .05349299 * h, -.09239631 * w, .07836421 * h, .1406031 * w, -.0542823 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .4338609 * w, .074219 * h, .2450511 * w, -.00697547 * h, .3776197 * w, -.01112067 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .6558228 * w, .07004196 * h, .4539471 * w, 0, .6066018 * w, -.02526587 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .8921095 * w, .08370865 * h, .6914277 * w, -.01904177 * h, .8921095 * w, -.01220843 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .9147671 * w, .3194596 * h, 1.036446 * w, .04105738 * h, 1.020377 * w, .3022052 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .9082935 * w, .562044 * h, 1.04448 * w, .360238 * h, .992256 * w, .5219009 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .9212406 * w, .8217117 * h, 1.032337 * w, .5771781 * h, 1.018411 * w, .8120651 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .7592566 * w, .9156953 * h, 1.028411 * w, .9571472 * h, .8556702 * w, 1.052487 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .5101666 * w, .9310455 * h, .7431877 * w, 1.009325 * h, .5624123 * w, 1.021761 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .2609328 * w, .9344623 * h, .4820677 * w, 1.031761 * h, .3030112 * w, 1.002796 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .08034461 * w, .870098 * h, .2329994 * w, 1.01518 * h, .03213784 * w, 1.01518 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .06829292 * w, .6545475 * h, -.02812061 * w, .9032597 * h, -.01205169 * w, .6835638 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .06427569 * w, .4265613 * h, -.01812061 * w, .6089503 * h, -.00606892 * w, .4555777 * h))
+                    .add(new go.PathSegment(go.PathSegment.Bezier,
+                        .08034461 * w, .1944299 * h, -.01606892 * w, .3892545 * h, -.01205169 * w, .1944299 * h)))
+                .setSpots(.1, .1, .9, .9);
+        });
+
+        myDiagram.nodeTemplateMap.add("Thought",  // the default category
+            $(go.Node, "Table", nodeStyle(),
+                // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
+                $(go.Panel, "Auto",
+                    $(go.Shape, "Cloud",
+                        { fill: "#282c34", stroke: "#9db8fc", strokeWidth: 3.5 },
+                        new go.Binding("figure", "figure")),
+                    $(go.TextBlock, textStyle(),
+                        {
+                            margin: 8,
+                            maxSize: new go.Size(300, NaN),
                             wrap: go.TextBlock.WrapFit,
                             editable: true
                         },
