@@ -331,15 +331,16 @@ class ConceptMap extends React.Component {
 
                 console.log("Just created a node by dragging");
 
-                console.log(p.part.data);
-                let victim = p.part.data.key;
-                // this.handleDeleteNode2(victim);
+                // console.log(p.part.data); // node just dragged in
+                let orig_key = p.part.data.key;
+                // console.log(orig_key);
+                let added_node_obj = myDiagram.findNodeForKey(orig_key);
+
+                console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+                myDiagram.model.setKeyForNodeData(added_node_obj.data, 1001);
+                console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+
             });
-            // console.log("text: " + e.oldValue.text);
-
-            // let victim = e.oldValue.key;
-
-            // this.handleDeleteNode2(victim);
         });
 
         // Triggers when Node is deleted
