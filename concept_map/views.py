@@ -99,7 +99,7 @@ def add_relationship(request):
     """'node/relate/' [POST] route."""
 
     post_data = json.loads(request.body.decode('utf-8'))
-    print(json.dumps(post_data, indent=2))
+    # print(json.dumps(post_data, indent=2))
 
     from_node = Node.objects.get(pk=post_data['from_node'])
     to_node = Node.objects.get(pk=post_data['to_node'])
@@ -115,6 +115,13 @@ def remove_relationship(request):
     """'node/unrelate/' [POST] route."""
 
     post_data = json.loads(request.body.decode('utf-8'))
-    print(json.dumps(post_data, indent=2))
+    # print(json.dumps(post_data, indent=2))
 
-    return HttpResponse("TODO: remove a relationship between two nodes")
+    from_node = Node.objects.get(pk=post_data['from_node'])
+    to_node = Node.objects.get(pk=post_data['to_node'])
+
+    the_relationship = Relationship.objects.filter(
+        from_node=from_node, to_node=to_node)
+    the_relationship.delete()
+
+    return get_nodes(request)

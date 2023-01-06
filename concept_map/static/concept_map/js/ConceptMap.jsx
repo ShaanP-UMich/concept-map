@@ -240,7 +240,12 @@ class ConceptMap extends React.Component {
                         // $(go.ForceDirectedLayout,  // automatically spread nodes apart
                         //     { maxIterations: 200, defaultSpringLength: 30, defaultElectricalCharge: 70 })
                         $(go.TreeLayout,  // automatically spread nodes apart
-                            { alignment: go.TreeLayout.AlignmentCenterChildren })
+                            { 
+                                alignment: go.TreeLayout.AlignmentCenterChildren,
+                                angle: 90,
+                                layerSpacing: 70,
+                                layerStyle: go.TreeLayout.LayerUniform
+                            })
                 });
 
         // when the document is modified, add a "*" to the title and enable the "Save" button
@@ -385,8 +390,8 @@ class ConceptMap extends React.Component {
                 ),
                 // four named ports, one on each side:
                 makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),
-                makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
-                makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
+                // makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
+                // makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
                 makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, false)
             ));
 
@@ -408,8 +413,8 @@ class ConceptMap extends React.Component {
                 ),
                 // four named ports, one on each side:
                 makePort("T", go.Spot.Top, go.Spot.TopSide, true, true),
-                makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
-                makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
+                // makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
+                // makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
                 makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, true)
             ));
 
@@ -457,7 +462,7 @@ class ConceptMap extends React.Component {
                     $(go.TextBlock, textStyle(),
                         {
                             margin: 8,
-                            maxSize: new go.Size(300, NaN),
+                            maxSize: new go.Size(160, NaN),
                             wrap: go.TextBlock.WrapFit,
                             editable: true
                         },
