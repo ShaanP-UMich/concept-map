@@ -322,6 +322,27 @@ class ConceptMap extends React.Component {
             // console.log(e);
         });
 
+        // Triggers when Node is created by dropping it in
+        myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
+            // console.log("key: " + e.subject.part);
+            console.log("Part created");
+            e.subject.each((p) => {
+                if (!(p instanceof go.Node)) return;
+
+                console.log("Just created a node by dragging");
+
+                console.log(p.part.data);
+                let victim = p.part.data.key;
+                // this.handleDeleteNode2(victim);
+            });
+            // console.log("text: " + e.oldValue.text);
+
+            // let victim = e.oldValue.key;
+
+            // this.handleDeleteNode2(victim);
+        });
+
+        // Triggers when Node is deleted
         myDiagram.addDiagramListener("SelectionDeleted", e => {
             // console.log("key: " + e.subject.part);
             e.subject.each((p) => {
@@ -339,21 +360,6 @@ class ConceptMap extends React.Component {
 
             // this.handleDeleteNode2(victim);
         });
-
-        // Triggers when Node is deleted (currently triggering on other things too)
-        // myDiagram.addModelChangedListener(e => {
-        //     if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
-        //         console.log(e.change);
-        //         // console.log(e.toString());
-        //         console.log("Just deleted a node");
-        //         console.log("key: " + e.oldValue.key);
-        //         console.log("text: " + e.oldValue.text);
-
-        //         let victim = e.oldValue.key;
-
-        //         // this.handleDeleteNode2(victim);
-        //     }
-        // });
 
         // Triggers when Link is deleted
         myDiagram.addModelChangedListener(e => {
@@ -686,7 +692,7 @@ class ConceptMap extends React.Component {
                 model: new go.GraphLinksModel([  // specify the contents of the Palette
                     { category: "Start", text: "Concept" },
                     { text: "Node" },
-                    { category: "Heading", text: "Heading"},
+                    { category: "Heading", text: "Heading" },
                     // { category: "Conditional", text: "???" },
                     // { category: "End", text: "End" },
                     // { category: "Comment", text: "Comment" }
