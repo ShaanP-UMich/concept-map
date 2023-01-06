@@ -87,6 +87,25 @@ def add_node(request):
     # return HttpResponse(status=200)
 
 
+def edit_node(request):
+    """'node/edit/' [POST] route."""
+    context = {}
+
+    post_data = json.loads(request.body.decode('utf-8'))
+
+    node_id = post_data['node_id']
+    new_text = post_data['new_text']
+
+    node = Node.objects.get(pk=node_id)
+    node.text = new_text
+
+    node.save()
+
+    # print(node.text)
+
+    return get_nodes(request)
+
+
 def delete_node(request):
     """'node/delete/' [POST] route."""
 

@@ -315,11 +315,31 @@ class ConceptMap extends React.Component {
 
         myDiagram.addDiagramListener("TextEdited", e => {
             console.log("Just edited an existing link");
+
+            let edited_node_obj = e.subject.part;
+
+            console.log(e.subject);
             console.log(e.subject.text); // new text value
             console.log(e.parameter); // old text value
             // console.log("from: " + e.subject.part.data.from);
             // console.log("to: " + e.subject.part.data.to);
             // console.log(e);
+
+            const { csrftoken } = this.state;
+            const payload = { node_id: e.subject.part.key, new_text: e.subject.text };
+
+            fetch('/concept_map/node/edit/', {
+                credentials: 'include',
+                method: 'POST',
+                mode: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                body: JSON.stringify(payload)
+            }).then((response) => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+            }).then((data) => {
+                // this.fetchNodes();
+            }).catch((error) => console.log(error));
         });
 
         // Triggers when Node is created by dropping it in
@@ -490,10 +510,10 @@ class ConceptMap extends React.Component {
                         new go.Binding("text").makeTwoWay())
                 ),
                 // four named ports, one on each side:
-                makePort("T", go.Spot.Top, go.Spot.TopSide, true, true),
+                makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),
                 // makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
                 // makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
-                makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, true)
+                makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, false)
             ));
 
         go.Shape.defineFigureGenerator("Cloud", function (shape, w, h) {
@@ -548,8 +568,8 @@ class ConceptMap extends React.Component {
                 ),
                 // four named ports, one on each side:
                 makePort("T", go.Spot.Top, go.Spot.TopSide, false, true),
-                makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
-                makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
+                // makePort("L", go.Spot.Left, go.Spot.LeftSide, true, true),
+                // makePort("R", go.Spot.Right, go.Spot.RightSide, true, true),
                 makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, false)
             ));
 
