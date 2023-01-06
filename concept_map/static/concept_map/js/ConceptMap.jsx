@@ -21,6 +21,7 @@ class ConceptMap extends React.Component {
         this.handleAddNode = this.handleAddNode.bind(this);
         this.handleAddNodeChange = this.handleAddNodeChange.bind(this);
         this.handleDeleteNode = this.handleDeleteNode.bind(this);
+        this.handleDeleteNode2 = this.handleDeleteNode2.bind(this);
         this.handleDeleteNodeChange = this.handleDeleteNodeChange.bind(this);
         this.handleAddRelationship = this.handleAddRelationship.bind(this);
         this.handleRemoveRelationship = this.handleRemoveRelationship.bind(this);
@@ -119,6 +120,26 @@ class ConceptMap extends React.Component {
 
         event.target.children[1].value = 1;
         this.setState({ deleteNode_value: 1 });
+    }
+
+    handleDeleteNode2(node_id) {
+        const { csrftoken } = this.state;
+        console.log(node_id);
+
+        const payload = { node: node_id };
+
+        fetch('/concept_map/node/delete/', {
+            credentials: 'include',
+            method: 'POST',
+            mode: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+            body: JSON.stringify(payload)
+        }).then((response) => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+        }).then((data) => {
+            // this.fetchNodes();
+        }).catch((error) => console.log(error));
     }
 
     handleDeleteNodeChange(event) {
@@ -240,7 +261,7 @@ class ConceptMap extends React.Component {
                         // $(go.ForceDirectedLayout,  // automatically spread nodes apart
                         //     { maxIterations: 200, defaultSpringLength: 30, defaultElectricalCharge: 70 })
                         $(go.TreeLayout,  // automatically spread nodes apart
-                            { 
+                            {
                                 alignment: go.TreeLayout.AlignmentCenterChildren,
                                 angle: 90,
                                 layerSpacing: 70,
@@ -250,7 +271,7 @@ class ConceptMap extends React.Component {
 
         // when the document is modified, add a "*" to the title and enable the "Save" button
         myDiagram.addDiagramListener("Modified", e => {
-            console.log("Just modified the diagram");
+            // console.log("Just modified the diagram");
             // console.log(e);
         });
 
@@ -300,6 +321,39 @@ class ConceptMap extends React.Component {
             // console.log("to: " + e.subject.part.data.to);
             // console.log(e);
         });
+
+        myDiagram.addDiagramListener("SelectionDeleted", e => {
+            // console.log("key: " + e.subject.part);
+            e.subject.each((p) => {
+                if (!(p instanceof go.Node)) return;
+
+                console.log("Just deleted a node");
+
+                console.log(p.part.data);
+                let victim = p.part.data.key;
+                this.handleDeleteNode2(victim);
+            });
+            // console.log("text: " + e.oldValue.text);
+
+            // let victim = e.oldValue.key;
+
+            // this.handleDeleteNode2(victim);
+        });
+
+        // Triggers when Node is deleted (currently triggering on other things too)
+        // myDiagram.addModelChangedListener(e => {
+        //     if (e.change === go.ChangedEvent.Remove && e.modelChange === "nodeDataArray") {
+        //         console.log(e.change);
+        //         // console.log(e.toString());
+        //         console.log("Just deleted a node");
+        //         console.log("key: " + e.oldValue.key);
+        //         console.log("text: " + e.oldValue.text);
+
+        //         let victim = e.oldValue.key;
+
+        //         // this.handleDeleteNode2(victim);
+        //     }
+        // });
 
         // Triggers when Link is deleted
         myDiagram.addModelChangedListener(e => {
@@ -500,15 +554,20 @@ class ConceptMap extends React.Component {
 
         myDiagram.nodeTemplateMap.add("Start",
             $(go.Node, "Table", nodeStyle(),
-                $(go.Panel, "Spot",
-                    $(go.Shape, "Circle",
-                        { desiredSize: new go.Size(70, 70), fill: "#282c34", stroke: "#09d3ac", strokeWidth: 3.5 }),
+                $(go.Panel, "Auto",
+                    $(go.Shape, "Ellipse",
+                        { fill: "#282c34", stroke: "#09d3ac", strokeWidth: 3.5 }),
                     $(go.TextBlock, "Start", textStyle(),
+                        {
+                            margin: 8,
+                            wrap: go.TextBlock.WrapFit,
+                            editable: true
+                        },
                         new go.Binding("text"))
                 ),
                 // three named ports, one on each side except the top, all output only:
-                makePort("L", go.Spot.Left, go.Spot.Left, true, false),
-                makePort("R", go.Spot.Right, go.Spot.Right, true, false),
+                // makePort("L", go.Spot.Left, go.Spot.Left, true, false),
+                // makePort("R", go.Spot.Right, go.Spot.Right, true, false),
                 makePort("B", go.Spot.Bottom, go.Spot.Bottom, true, false)
             ));
 
@@ -621,14 +680,16 @@ class ConceptMap extends React.Component {
                 // Instead of the default animation, use a custom fade-down
                 "animationManager.initialAnimationStyle": go.AnimationManager.None,
                 "InitialAnimationStarting": animateFadeDown, // Instead, animate with this function
+                initialScale: 0.8,
 
                 nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
                 model: new go.GraphLinksModel([  // specify the contents of the Palette
-                    { category: "Start", text: "Start" },
-                    { text: "Step" },
-                    { category: "Conditional", text: "???" },
-                    { category: "End", text: "End" },
-                    { category: "Comment", text: "Comment" }
+                    { category: "Start", text: "Concept" },
+                    { text: "Node" },
+                    { category: "Heading", text: "Heading"},
+                    // { category: "Conditional", text: "???" },
+                    // { category: "End", text: "End" },
+                    // { category: "Comment", text: "Comment" }
                 ])
             });
 
@@ -742,6 +803,10 @@ class ConceptMap extends React.Component {
         myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
         myDiagram.model.linkFromPortIdProperty = "fromPort";
         myDiagram.model.linkToPortIdProperty = "toPort";
+
+        // The Diagram Model in JSON form
+        // let modelJson = myDiagram.model.toJson();
+        // console.log(modelJson);
     }
 
     getCookie(name) {
