@@ -64,19 +64,25 @@ def get_nodes(request):
 
 def add_node(request):
     """'node/add/' [POST] route."""
-    # context = {}
+    context = {}
 
     post_data = json.loads(request.body.decode('utf-8'))
     # print(post_data)
 
     node_text = post_data['node_text']
+    category = post_data['category']
 
-    new_node = Node(text=node_text)
+    new_node = Node(text=node_text, category=category)
     new_node.save()
 
     # context[new_node.id] = new_node.text
 
     # return HttpResponse(f"TODO: add a new node {node_text}")
+
+    if 'dragged' in post_data:
+        context['node_id'] = new_node.id
+        return JsonResponse(context)
+
     return get_nodes(request)
     # return HttpResponse(status=200)
 

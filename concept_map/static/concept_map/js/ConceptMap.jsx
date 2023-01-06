@@ -76,7 +76,7 @@ class ConceptMap extends React.Component {
         // console.log(event.target[0].value); // this is the node_text from the form (old)
         event.preventDefault();
         const { addNode_value, csrftoken } = this.state;
-        const payload = { node_text: addNode_value }
+        const payload = { node_text: addNode_value, category: "" }
         // console.log(addNode_value);
         // console.log(csrftoken);
 
@@ -333,13 +333,30 @@ class ConceptMap extends React.Component {
 
                 // console.log(p.part.data); // node just dragged in
                 let orig_key = p.part.data.key;
+                let orig_text = p.part.data.text;
+                let category = p.part.data.category;
                 // console.log(orig_key);
+                // console.log(orig_text);
+                // console.log(category);
                 let added_node_obj = myDiagram.findNodeForKey(orig_key);
 
-                console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
-                myDiagram.model.setKeyForNodeData(added_node_obj.data, 1001);
-                console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+                const { csrftoken } = this.state;
+                const payload = { node_text: orig_text, category: category, dragged: true };
 
+                fetch('/concept_map/node/add/', {
+                    credentials: 'include',
+                    method: 'POST',
+                    mode: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+                    body: JSON.stringify(payload)
+                }).then((response) => {
+                    if (!response.ok) throw Error(response.statusText);
+                    return response.json();
+                }).then((data) => {
+                    console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+                    myDiagram.model.setKeyForNodeData(added_node_obj.data, data['node_id']);
+                    console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+                }).catch((error) => console.log(error));
             });
         });
 
@@ -694,6 +711,7 @@ class ConceptMap extends React.Component {
                     { category: "Start", text: "Concept" },
                     { text: "Node" },
                     { category: "Heading", text: "Heading" },
+                    { category: "Thought", text: "Thought" },
                     // { category: "Conditional", text: "???" },
                     // { category: "End", text: "End" },
                     // { category: "Comment", text: "Comment" }
