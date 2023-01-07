@@ -67,7 +67,7 @@ def add_node(request):
     context = {}
 
     post_data = json.loads(request.body.decode('utf-8'))
-    # print(post_data)
+    print(post_data)
 
     node_text = post_data['node_text']
     category = post_data['category']
@@ -76,8 +76,6 @@ def add_node(request):
     new_node.save()
 
     # context[new_node.id] = new_node.text
-
-    # return HttpResponse(f"TODO: add a new node {node_text}")
 
     if 'dragged' in post_data:
         context['node_id'] = new_node.id

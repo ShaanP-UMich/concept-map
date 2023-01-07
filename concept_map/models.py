@@ -5,7 +5,7 @@ from django.db import models
 
 class Node(models.Model):
     text = models.CharField(max_length=256, default="")
-    category = models.CharField(max_length=50, default="")
+    category = models.CharField(max_length=50, default="Idea")
 
     def __str__(self):
         return self.text

@@ -11,15 +11,20 @@ class ConceptMap extends React.Component {
             csrftoken: this.getCookie('csrftoken'),
             node_interactables: (<div></div>),
             addNode_value: "",
+            addNodeCategory_value: "Start",
             deleteNode_value: 1,
-            myDiagram: ""
+            myDiagram: "",
+            categories: []
         };
 
         this.fetchNodes = this.fetchNodes.bind(this);
         this.createConceptMap = this.createConceptMap.bind(this);
         this.getCookie = this.getCookie.bind(this);
+        this.updateNodeInteractables = this.updateNodeInteractables.bind(this);
+        this.getNodeInteractables = this.getNodeInteractables.bind(this);
         this.handleAddNode = this.handleAddNode.bind(this);
         this.handleAddNodeChange = this.handleAddNodeChange.bind(this);
+        this.handleAddNodeCategoryChange = this.handleAddNodeCategoryChange.bind(this);
         this.handleDeleteNode = this.handleDeleteNode.bind(this);
         this.handleDeleteNode2 = this.handleDeleteNode2.bind(this);
         this.handleDeleteNodeChange = this.handleDeleteNodeChange.bind(this);
@@ -41,9 +46,9 @@ class ConceptMap extends React.Component {
     }
 
     render() { // Called before componentDidMount
-        const { nodeDataArray, node_interactables } = this.state;
+        const { node_interactables, categories } = this.state;
         console.log("render is being called");
-
+        // console.log(categories);
         // console.log(nodeDataArray);
         // console.log(node_interactables);
 
@@ -54,13 +59,6 @@ class ConceptMap extends React.Component {
                         <div id="myPaletteDiv"></div>
                         <div id="myDiagramDiv"></div>
                     </div>
-                    {/* <div id="myDiagramDiv">
-                        <canvas tabIndex="0">This
-                            text is displayed if your browser does not support the Canvas HTML element.</canvas>
-                        <div id="under-canvas-1">
-                            <div id="under-canvas-2"></div>
-                        </div>
-                    </div> */}
                 </div>
 
                 {node_interactables}
@@ -72,11 +70,15 @@ class ConceptMap extends React.Component {
         this.setState({ addNode_value: event.target.value });
     }
 
+    handleAddNodeCategoryChange(event) {
+        this.setState({ addNodeCategory_value: event.target.value });
+    }
+
     handleAddNode(event) {
         // console.log(event.target[0].value); // this is the node_text from the form (old)
         event.preventDefault();
-        const { addNode_value, csrftoken } = this.state;
-        const payload = { node_text: addNode_value, category: "" }
+        const { addNode_value, addNodeCategory_value, csrftoken } = this.state;
+        const payload = { node_text: addNode_value, category: addNodeCategory_value };
         // console.log(addNode_value);
         // console.log(csrftoken);
 
@@ -199,8 +201,7 @@ class ConceptMap extends React.Component {
             })
             .then((data) => {
                 this.setState((prevState) => {
-                    let { nodeDataArray, linkDataArray, node_interactables, addNode_value,
-                        deleteNode_value } = prevState;
+                    let { nodeDataArray, linkDataArray, node_interactables, categories } = prevState;
                     // console.log("this inner setState is running");
 
                     nodeDataArray = data.nodeDataArray;
@@ -214,31 +215,68 @@ class ConceptMap extends React.Component {
                         <option key={node.key} value={node.key}>{node.text}</option>
                     ));
 
-                    node_interactables = (
-                        <div>
-                            <form onSubmit={this.handleAddNode}>
-                                <label htmlFor="node_text">Add Node:</label>
-                                <input
-                                    type="text"
-                                    id="node_text"
-                                    placeholder="Node Text"
-                                    onChange={this.handleAddNodeChange} />
-                            </form>
+                    const categoryOptions = categories.map((category) => (
+                        <option key={category} value={category}>{category}</option>
+                    ));
 
-                            <form onSubmit={this.handleDeleteNode}>
-                                <label htmlFor="nodes">Delete a Node:</label>
-                                <select id="nodes" name="nodes" onChange={this.handleDeleteNodeChange}>
-                                    {nodeOptions}
-                                </select>
-                                <input type="submit" />
-                            </form>
-                        </div>
-                    );
+                    node_interactables = this.getNodeInteractables(nodeOptions, categoryOptions);
 
                     return { nodeDataArray, linkDataArray, node_interactables };
                 });
             })
             .catch((error) => console.log(error));
+    }
+
+    getNodeInteractables(nodeOptions, categoryOptions) {
+        return (
+            <div>
+                <form onSubmit={this.handleAddNode}>
+                    <label htmlFor="node_text">Add Node:</label>
+                    <input
+                        type="text"
+                        id="node_text"
+                        placeholder="Node Text"
+                        onChange={this.handleAddNodeChange} />
+                        <br />
+                        <label htmlFor="node_category">Idea Type:</label>
+                    <select id="node_category" name="node_category" onChange={this.handleAddNodeCategoryChange}>
+                        {categoryOptions}
+                    </select>
+                    <input type="submit" />
+                </form>
+                <br />
+                <form onSubmit={this.handleDeleteNode}>
+                    <label htmlFor="nodes">Delete a Node:</label>
+                    <select id="nodes" name="nodes" onChange={this.handleDeleteNodeChange}>
+                        {nodeOptions}
+                    </select>
+                    <input type="submit" />
+                </form>
+            </div>
+        );
+    }
+
+    updateNodeInteractables() {
+        this.setState((prevState) => {
+            let { myDiagram, node_interactables, categories } = prevState;
+            if (categories.length === 0) return;
+            let nodeDataArray = myDiagram.model.nodeDataArray;
+
+            const nodeOptions = nodeDataArray.map((node) => (
+                <option key={node.key} value={node.key}>{node.text}</option>
+            ));
+
+            const categoryOptions = categories.map((category) => (
+                <option key={category} value={category}>{category}</option>
+            ));
+
+            console.log(nodeOptions);
+            console.log(categoryOptions);
+
+            node_interactables = this.getNodeInteractables(nodeOptions, categoryOptions);
+
+            return { node_interactables };
+        });
     }
 
     createConceptMap2(nodeDataArray, linkDataArray) {
@@ -339,6 +377,7 @@ class ConceptMap extends React.Component {
                 return response.json();
             }).then((data) => {
                 // this.fetchNodes();
+                this.updateNodeInteractables();
             }).catch((error) => console.log(error));
         });
 
@@ -376,6 +415,8 @@ class ConceptMap extends React.Component {
                     console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
                     myDiagram.model.setKeyForNodeData(added_node_obj.data, data['node_id']);
                     console.log(myDiagram.model.getKeyForNodeData(added_node_obj));
+
+                    this.updateNodeInteractables();
                 }).catch((error) => console.log(error));
             });
         });
@@ -391,6 +432,7 @@ class ConceptMap extends React.Component {
                 console.log(p.part.data);
                 let victim = p.part.data.key;
                 this.handleDeleteNode2(victim);
+                this.updateNodeInteractables();
             });
             // console.log("text: " + e.oldValue.text);
 
@@ -470,7 +512,7 @@ class ConceptMap extends React.Component {
 
         // define the Node templates for regular nodes
 
-        myDiagram.nodeTemplateMap.add("",  // the default category
+        myDiagram.nodeTemplateMap.add("Idea",  // the default category
             $(go.Node, "Table", nodeStyle(),
                 // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
                 $(go.Panel, "Auto",
@@ -720,7 +762,7 @@ class ConceptMap extends React.Component {
         // load();  // load an initial diagram from some JSON text
 
         // initialize the Palette that is on the left side of the page
-        $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
+        let myPalette = $(go.Palette, "myPaletteDiv",  // must name or refer to the DIV HTML element
             {
                 // Instead of the default animation, use a custom fade-down
                 "animationManager.initialAnimationStyle": go.AnimationManager.None,
@@ -730,14 +772,25 @@ class ConceptMap extends React.Component {
                 nodeTemplateMap: myDiagram.nodeTemplateMap,  // share the templates used by myDiagram
                 model: new go.GraphLinksModel([  // specify the contents of the Palette
                     { category: "Start", text: "Concept" },
-                    { text: "Node" },
                     { category: "Heading", text: "Heading" },
+                    { category: "Idea", text: "Idea" },
                     { category: "Thought", text: "Thought" },
                     // { category: "Conditional", text: "???" },
                     // { category: "End", text: "End" },
                     // { category: "Comment", text: "Comment" }
                 ])
             });
+
+        this.setState((prevState) => {
+            const { categories } = prevState;
+
+            myPalette.model.nodeDataArray.forEach((node) => {
+                // console.log(node.category);
+                categories.push(node.category);
+            });
+
+            return categories;
+        });
 
         // This is a re-implementation of the default animation, except it fades in from downwards, instead of upwards.
         function animateFadeDown(e) {
@@ -845,6 +898,11 @@ class ConceptMap extends React.Component {
         // myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
         // myDiagram.model.nodeDataArray = nodeDataArray;
         // myDiagram.model.linkDataArray = linkDataArray;
+
+        // myDiagram.model.commit(m => {
+        //     m.mergeNodeDataArray(nodeDataArray);
+        //     m.mergeLinkDataArray(linkDataArray);
+        // });
 
         myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
         myDiagram.model.linkFromPortIdProperty = "fromPort";
