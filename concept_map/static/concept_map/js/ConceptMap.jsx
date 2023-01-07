@@ -610,8 +610,9 @@ class ConceptMap extends React.Component {
                         new go.Binding("text"))
                 ),
                 // three named ports, one on each side except the top, all output only:
-                // makePort("L", go.Spot.Left, go.Spot.Left, true, false),
-                // makePort("R", go.Spot.Right, go.Spot.Right, true, false),
+                // makePort("T", go.Spot.Top, go.Spot.TopSide, true, true),
+                // makePort("L", go.Spot.Left, go.Spot.Left, true, true),
+                // makePort("R", go.Spot.Right, go.Spot.Right, true, true),
                 makePort("B", go.Spot.Bottom, go.Spot.Bottom, true, false)
             ));
 
