@@ -1,7 +1,0 @@
-Switch order for node and heading on pallette (DONE)
-
-add spacing or add submit button between add  node and delete a node (DONE)
-
-weird issue where if you refresh sometimes just some nodes are being deleted (FIXED)
-
-have dropdowns for delete a node update in real time without having to refresh (FIXED)
