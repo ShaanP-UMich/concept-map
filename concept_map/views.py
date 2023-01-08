@@ -31,27 +31,14 @@ def get_nodes(request):
         "linkDataArray": []
     }
 
-    # { key: 13, text: "melting glaciers" }
-    # { from: 1, to: 2 }
-
-    i = 0
     for node in nodes:
-        if i % 2 == 0:
-            context['nodeDataArray'].append({
-                "key": node.id,
-                "text": node.text,
-                "category": node.category
-            })
-        else:
-            context['nodeDataArray'].append({
-                "key": node.id,
-                "text": node.text,
-                "category": node.category
-            })
-        # i += 1
+        context['nodeDataArray'].append({
+            "key": node.id,
+            "text": node.text,
+            "category": node.category
+        })
 
     for relationship in relationships:
-        # print(str(relationship.from_node) + str(relationship.to_node))
         context['linkDataArray'].append(
             {
                 "from": relationship.from_node.id,
@@ -75,14 +62,11 @@ def add_node(request):
     new_node = Node(text=node_text, category=category)
     new_node.save()
 
-    # context[new_node.id] = new_node.text
-
     if 'dragged' in post_data:
         context['node_id'] = new_node.id
         return JsonResponse(context)
 
     return get_nodes(request)
-    # return HttpResponse(status=200)
 
 
 def edit_node(request):
@@ -99,14 +83,11 @@ def edit_node(request):
 
     node.save()
 
-    # print(node.text)
-
     return get_nodes(request)
 
 
 def delete_node(request):
     """'node/delete/' [POST] route."""
-
     post_data = json.loads(request.body.decode('utf-8'))
 
     selected_node = post_data['node']
@@ -122,7 +103,6 @@ def add_relationship(request):
     """'node/relate/' [POST] route."""
 
     post_data = json.loads(request.body.decode('utf-8'))
-    # print(json.dumps(post_data, indent=2))
 
     from_node = Node.objects.get(pk=post_data['from_node'])
     to_node = Node.objects.get(pk=post_data['to_node'])
@@ -138,7 +118,6 @@ def remove_relationship(request):
     """'node/unrelate/' [POST] route."""
 
     post_data = json.loads(request.body.decode('utf-8'))
-    # print(json.dumps(post_data, indent=2))
 
     from_node = Node.objects.get(pk=post_data['from_node'])
     to_node = Node.objects.get(pk=post_data['to_node'])

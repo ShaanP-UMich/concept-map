@@ -38,7 +38,6 @@ class ConceptMap extends React.Component {
         console.log("componentDidMount is being called");
 
         this.setState({
-            // myDiagram: this.createConceptMap([], [])
             myDiagram: this.createConceptMap2([], [])
         });
 
@@ -46,11 +45,8 @@ class ConceptMap extends React.Component {
     }
 
     render() { // Called before componentDidMount
-        const { node_interactables, categories } = this.state;
+        const { node_interactables } = this.state;
         console.log("render is being called");
-        // console.log(categories);
-        // console.log(nodeDataArray);
-        // console.log(node_interactables);
 
         return (
             <div>
@@ -75,12 +71,9 @@ class ConceptMap extends React.Component {
     }
 
     handleAddNode(event) {
-        // console.log(event.target[0].value); // this is the node_text from the form (old)
         event.preventDefault();
         const { addNode_value, addNodeCategory_value, csrftoken } = this.state;
         const payload = { node_text: addNode_value, category: addNodeCategory_value };
-        // console.log(addNode_value);
-        // console.log(csrftoken);
 
         fetch('/concept_map/node/add/', {
             credentials: 'include',
@@ -139,13 +132,10 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
-        }).then((data) => {
-            // this.fetchNodes();
         }).catch((error) => console.log(error));
     }
 
     handleDeleteNodeChange(event) {
-        // console.log(event.target.value);
         this.setState({ deleteNode_value: event.target.value });
     }
 
@@ -162,12 +152,6 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
-        }).then((data) => {
-            // console.log("returned data from node/relate/");
-            // console.log(data['nodeDataArray']);
-
-            // this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
-            // this.fetchNodes();
         }).catch((error) => console.log(error));
     }
 
@@ -184,12 +168,6 @@ class ConceptMap extends React.Component {
         }).then((response) => {
             if (!response.ok) throw Error(response.statusText);
             return response.json();
-        }).then((data) => {
-            // console.log("returned data from node/relate/");
-            // console.log(data['nodeDataArray']);
-
-            // this.updateConceptMap(data['nodeDataArray'], data['linkDataArray']);
-            // this.fetchNodes();
         }).catch((error) => console.log(error));
     }
 
@@ -202,12 +180,9 @@ class ConceptMap extends React.Component {
             .then((data) => {
                 this.setState((prevState) => {
                     let { nodeDataArray, linkDataArray, node_interactables, categories } = prevState;
-                    // console.log("this inner setState is running");
 
                     nodeDataArray = data.nodeDataArray;
                     linkDataArray = data.linkDataArray;
-
-                    // linkDataArray.push({ from: 31, to: 32 });
 
                     this.updateConceptMap(nodeDataArray, linkDataArray);
 
@@ -237,8 +212,8 @@ class ConceptMap extends React.Component {
                         id="node_text"
                         placeholder="Node Text"
                         onChange={this.handleAddNodeChange} />
-                        <br />
-                        <label htmlFor="node_category">Idea Type:</label>
+                    <br />
+                    <label htmlFor="node_category">Idea Type:</label>
                     <select id="node_category" name="node_category" onChange={this.handleAddNodeCategoryChange}>
                         {categoryOptions}
                     </select>
@@ -280,8 +255,6 @@ class ConceptMap extends React.Component {
     }
 
     createConceptMap2(nodeDataArray, linkDataArray) {
-        if (window.goSamples) goSamples();  // init for these samples -- you don't need to call this
-
         // Since 2.2 you can also author concise templates with method chaining instead of GraphObject.make
         // For details, see https://gojs.net/latest/intro/buildingObjects.html
         const $ = go.GraphObject.make;  // for conciseness in defining templates
@@ -307,12 +280,6 @@ class ConceptMap extends React.Component {
                             })
                 });
 
-        // when the document is modified, add a "*" to the title and enable the "Save" button
-        myDiagram.addDiagramListener("Modified", e => {
-            // console.log("Just modified the diagram");
-            // console.log(e);
-        });
-
         // Triggers when Link is created
         myDiagram.addDiagramListener("LinkDrawn", e => {
             const { myDiagram } = this.state;
@@ -323,32 +290,6 @@ class ConceptMap extends React.Component {
             console.log("to: " + e.subject.part.data.to);
 
             this.handleAddRelationship(from_node, to_node);
-
-            // Get all nodes that the from_node is connected to (DOESN'T WORK)
-            // let found = false;
-            // let found_nodes = new Set();
-            // let from_node_obj = myDiagram.findNodeForKey(from_node);
-            // console.log(from_node_obj.data.text);
-            // let it = from_node_obj.findNodesConnected();
-            // console.log("===================");
-            // while (it.next()) {
-            //     console.log(it.value.data.text);
-            //     if (!(it.value.data.key in found_nodes)) {
-            //         found_nodes.add(it.value.data.key);
-            //     }
-            //     else {
-            //         found = true;
-            //         break;
-            //     }
-            // };
-
-            // if (!found)
-            //     // this.handleAddRelationship(from_node, to_node);
-            //     console.log("not found");
-            // else {
-            //     console.log("Error: Nodes are already connected");
-            //     console.log(e.cancel);
-            // }
         });
 
         myDiagram.addDiagramListener("TextEdited", e => {
@@ -359,9 +300,6 @@ class ConceptMap extends React.Component {
             console.log(e.subject);
             console.log(e.subject.text); // new text value
             console.log(e.parameter); // old text value
-            // console.log("from: " + e.subject.part.data.from);
-            // console.log("to: " + e.subject.part.data.to);
-            // console.log(e);
 
             const { csrftoken } = this.state;
             const payload = { node_id: e.subject.part.key, new_text: e.subject.text };
@@ -375,28 +313,23 @@ class ConceptMap extends React.Component {
             }).then((response) => {
                 if (!response.ok) throw Error(response.statusText);
                 return response.json();
-            }).then((data) => {
-                // this.fetchNodes();
+            }).then(() => {
                 this.updateNodeInteractables();
             }).catch((error) => console.log(error));
         });
 
         // Triggers when Node is created by dropping it in
         myDiagram.addDiagramListener("ExternalObjectsDropped", e => {
-            // console.log("key: " + e.subject.part);
             console.log("Part created");
             e.subject.each((p) => {
                 if (!(p instanceof go.Node)) return;
 
                 console.log("Just created a node by dragging");
 
-                // console.log(p.part.data); // node just dragged in
                 let orig_key = p.part.data.key;
                 let orig_text = p.part.data.text;
                 let category = p.part.data.category;
-                // console.log(orig_key);
-                // console.log(orig_text);
-                // console.log(category);
+
                 let added_node_obj = myDiagram.findNodeForKey(orig_key);
 
                 const { csrftoken } = this.state;
@@ -423,7 +356,6 @@ class ConceptMap extends React.Component {
 
         // Triggers when Node is deleted
         myDiagram.addDiagramListener("SelectionDeleted", e => {
-            // console.log("key: " + e.subject.part);
             e.subject.each((p) => {
                 if (!(p instanceof go.Node)) return;
 
@@ -434,17 +366,11 @@ class ConceptMap extends React.Component {
                 this.handleDeleteNode2(victim);
                 this.updateNodeInteractables();
             });
-            // console.log("text: " + e.oldValue.text);
-
-            // let victim = e.oldValue.key;
-
-            // this.handleDeleteNode2(victim);
         });
 
         // Triggers when Link is deleted
         myDiagram.addModelChangedListener(e => {
             if (e.change === go.ChangedEvent.Remove && e.propertyName === "linkDataArray") {
-                // console.log(e.toString());
                 console.log("Just deleted a link");
                 console.log("from: " + e.oldValue.from);
                 console.log("to: " + e.oldValue.to);
@@ -615,29 +541,6 @@ class ConceptMap extends React.Component {
                 makePort("B", go.Spot.Bottom, go.Spot.BottomSide, true, false)
             ));
 
-        myDiagram.nodeTemplateMap.add("Conditional",
-            $(go.Node, "Table", nodeStyle(),
-                // the main object is a Panel that surrounds a TextBlock with a rectangular Shape
-                $(go.Panel, "Auto",
-                    $(go.Shape, "Diamond",
-                        { fill: "#282c34", stroke: "#00A9C9", strokeWidth: 3.5 },
-                        new go.Binding("figure", "figure")),
-                    $(go.TextBlock, textStyle(),
-                        {
-                            margin: 8,
-                            maxSize: new go.Size(160, NaN),
-                            wrap: go.TextBlock.WrapFit,
-                            editable: true
-                        },
-                        new go.Binding("text").makeTwoWay())
-                ),
-                // four named ports, one on each side:
-                makePort("T", go.Spot.Top, go.Spot.Top, false, true),
-                makePort("L", go.Spot.Left, go.Spot.Left, true, true),
-                makePort("R", go.Spot.Right, go.Spot.Right, true, true),
-                makePort("B", go.Spot.Bottom, go.Spot.Bottom, true, false)
-            ));
-
         myDiagram.nodeTemplateMap.add("Start",
             $(go.Node, "Table", nodeStyle(),
                 $(go.Panel, "Auto",
@@ -656,55 +559,6 @@ class ConceptMap extends React.Component {
                 // makePort("L", go.Spot.Left, go.Spot.Left, true, true),
                 // makePort("R", go.Spot.Right, go.Spot.Right, true, true),
                 makePort("B", go.Spot.Bottom, go.Spot.Bottom, true, false)
-            ));
-
-        myDiagram.nodeTemplateMap.add("End",
-            $(go.Node, "Table", nodeStyle(),
-                $(go.Panel, "Spot",
-                    $(go.Shape, "Circle",
-                        { desiredSize: new go.Size(60, 60), fill: "#282c34", stroke: "#DC3C00", strokeWidth: 3.5 }),
-                    $(go.TextBlock, "End", textStyle(),
-                        new go.Binding("text"))
-                ),
-                // three named ports, one on each side except the bottom, all input only:
-                makePort("T", go.Spot.Top, go.Spot.Top, false, true),
-                makePort("L", go.Spot.Left, go.Spot.Left, false, true),
-                makePort("R", go.Spot.Right, go.Spot.Right, false, true)
-            ));
-
-        // taken from ../extensions/Figures.js:
-        go.Shape.defineFigureGenerator("File", (shape, w, h) => {
-            var geo = new go.Geometry();
-            var fig = new go.PathFigure(0, 0, true); // starting point
-            geo.add(fig);
-            fig.add(new go.PathSegment(go.PathSegment.Line, .75 * w, 0));
-            fig.add(new go.PathSegment(go.PathSegment.Line, w, .25 * h));
-            fig.add(new go.PathSegment(go.PathSegment.Line, w, h));
-            fig.add(new go.PathSegment(go.PathSegment.Line, 0, h).close());
-            var fig2 = new go.PathFigure(.75 * w, 0, false);
-            geo.add(fig2);
-            // The Fold
-            fig2.add(new go.PathSegment(go.PathSegment.Line, .75 * w, .25 * h));
-            fig2.add(new go.PathSegment(go.PathSegment.Line, w, .25 * h));
-            geo.spot1 = new go.Spot(0, .25);
-            geo.spot2 = go.Spot.BottomRight;
-            return geo;
-        });
-
-        myDiagram.nodeTemplateMap.add("Comment",
-            $(go.Node, "Auto", nodeStyle(),
-                $(go.Shape, "File",
-                    { fill: "#282c34", stroke: "#DEE0A3", strokeWidth: 3 }),
-                $(go.TextBlock, textStyle(),
-                    {
-                        margin: 8,
-                        maxSize: new go.Size(200, NaN),
-                        wrap: go.TextBlock.WrapFit,
-                        textAlign: "center",
-                        editable: true
-                    },
-                    new go.Binding("text").makeTwoWay())
-                // no ports, because no links are allowed to connect with a comment
             ));
 
 
@@ -775,9 +629,6 @@ class ConceptMap extends React.Component {
                     { category: "Heading", text: "Heading" },
                     { category: "Idea", text: "Idea" },
                     { category: "Thought", text: "Thought" },
-                    // { category: "Conditional", text: "???" },
-                    // { category: "End", text: "End" },
-                    // { category: "Comment", text: "Comment" }
                 ])
             });
 
@@ -851,18 +702,6 @@ class ConceptMap extends React.Component {
                     new go.Binding("text", "text"))
             ));
 
-        // define each Node's appearance
-        // myDiagram.nodeTemplate =
-        //     $(go.Node, "Auto",  // the whole node panel
-        //         { locationSpot: go.Spot.Center },
-        //         // define the node's outer shape, which will surround the TextBlock
-        //         $(go.Shape, "Rectangle",
-        //             { fill: $(go.Brush, "Linear", { 0: "rgb(210, 247, 247)" }), stroke: "black" }),
-        //         $(go.TextBlock,
-        //             { font: "bold 18pt helvetica, bold arial, sans-serif", margin: 10 },
-        //             new go.Binding("text", "text"))
-        //     );
-
         // replace the default Link template in the linkTemplateMap
         myDiagram.linkTemplate =
             $(go.Link,  // the whole link panel
@@ -895,22 +734,9 @@ class ConceptMap extends React.Component {
     updateConceptMap(nodeDataArray, linkDataArray) {
         const { myDiagram } = this.state;
 
-        // myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
-        // myDiagram.model.nodeDataArray = nodeDataArray;
-        // myDiagram.model.linkDataArray = linkDataArray;
-
-        // myDiagram.model.commit(m => {
-        //     m.mergeNodeDataArray(nodeDataArray);
-        //     m.mergeLinkDataArray(linkDataArray);
-        // });
-
         myDiagram.model = new go.GraphLinksModel(nodeDataArray, linkDataArray);
         myDiagram.model.linkFromPortIdProperty = "fromPort";
         myDiagram.model.linkToPortIdProperty = "toPort";
-
-        // The Diagram Model in JSON form
-        // let modelJson = myDiagram.model.toJson();
-        // console.log(modelJson);
     }
 
     getCookie(name) {
